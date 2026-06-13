@@ -1,0 +1,80 @@
+
+http://socir.rivanit.com/otrs/customer.pl
+
+user1
+C1sc0123
+
+SOC L3
+http://socir.rivanit.com/otrs/index.pl
+
+certutil -hashfile DAY1-May5-SirRob.txt sha256
+
+2810c89f98b8b8f6e65c7075c7d337235be438426b6bc7475684be25b6d1115b
+
+
+HOMELAB FOR cybersec
+---- BEGIN SSH2 PUBLIC KEY ----
+AAAAB3NzaC1yc2EAAAADAQABAAABAQCkR/cbaIGT0OM7c8aIPHINCHfdQoNp+Hpz
+h3Sc4/H6O5i42yGI6WRMBQa6iEO0sGsjm/DYesFZqM0Jz+tL3wTP2/b7ZeyU/vty
+ss2QLrPWOKeftOm+ldVA0jy07F9Tlg3lpbVatDmFxbt40ShsbS+6ZutLI9YZe9gb
+C80uXwRXigvkd0NCruU5b3YnPjQp2+7GgcutNwrm9BkRzAFBDNPIsq5oI4cE0Zzi
+fc9vSVy3xBsvbLvRVPFDzmNaFizUsoesUB8nx1kjXC7TIacvTwyB1oxc7oYYGiDN
+EQOn9WIHNFGV5lJlL9aqnSjZlzSysHitdkDFMQfnM24eBbuCoxbT
+---- END SSH2 PUBLIC KEY ----
+
+
+config t
+NO ip access-list standard NOPORNFAP
+ip access-list standard NOPORNFAP
+DENY 66.254.0.0 0.0.255.255
+DENY 104.21.0.0 0.0.255.255
+DENY 68.235.0.0 0.0.255.255
+DENY 104.0.0.0 0.0.255.255.255
+DENY 88.208.0.0 0.0.255.255
+DENY 208.77.0.0 0.0.255.255
+DENY 172.67.0.0 0.0.255.255
+Permit Any
+Int Gi 1
+ ip access-group NOPORNFAP in
+end
+
+task8
+
+config t
+int Gi 3
+ no shut
+ ip add 192.168.103.11 255.255.255.0
+ ip add 192.168.103.10 255.255.255.0 Secondary
+service finger
+service tcp-small-servers
+service udp-small-servers
+ip dns server
+ip http server
+ip http secure-server
+!Make Ping EASY
+ip host www.bet10.com 192.168.103.10
+ip host www.bet11.com 192.168.103.11
+end
+
+PAT/NAT: port addr translation + network addr translation
+
+proxy
+192.168.103.10			208.8.8.69
+192.168.103.11			208.8.8.69
+
+config t
+no access-list 8
+access-list 8 permit host 192.168.103.10
+access-list 8 permit host 192.168.103.11
+Int Gi 3
+ ip nat Inside
+Int gi 1
+ ip nat Outside
+IP Nat inside source static tcp 192.168.103.10 80 208.8.8.88 80
+IP Nat inside source static tcp 192.168.103.10 443 208.8.8.88 8443
+!for www.surebet22.com
+IP Nat inside source static tcp 192.168.103.11 80 208.8.8.88 8080
+IP Nat inside source static tcp 192.168.103.11 443 208.8.8.88 443
+IP nat inside source list 8 int gi 1 Overload
+end
+show ip nat translation
